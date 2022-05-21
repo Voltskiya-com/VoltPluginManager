@@ -1,0 +1,4 @@
+.idea/
+build/tmp/jar/MANIFEST.MF
+build/
+.gradle/
