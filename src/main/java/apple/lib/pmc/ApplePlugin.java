@@ -1,8 +1,13 @@
 package apple.lib.pmc;
 
-import apple.configs.factory.AppleConfigFactory;
+import apple.lib.configs.data.AppleConfigsDatabase;
+import apple.lib.configs.data.config.AppleConfig;
 import co.aikar.commands.BaseCommand;
 import co.aikar.commands.PaperCommandManager;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.logging.Level;
 import net.luckperms.api.LuckPerms;
 import net.luckperms.api.LuckPermsProvider;
 import org.bukkit.Bukkit;
@@ -11,13 +16,9 @@ import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.logging.Level;
-
 public abstract class ApplePlugin extends JavaPlugin {
-    private final List<PluginModule> modules = new ArrayList<>();
+
+    private final List<AppleModule> modules = new ArrayList<>();
     private PaperCommandManager commandManager;
     private LuckPerms luckPerms;
 
@@ -62,7 +63,7 @@ public abstract class ApplePlugin extends JavaPlugin {
     @Override
     public void onDisable() {
         onDisablePre();
-        for (PluginModule module : modules) {
+        for (AppleModule module : modules) {
             if (module.shouldEnable()) {
                 module.onDisable();
                 module.setEnabled(false);
@@ -82,7 +83,7 @@ public abstract class ApplePlugin extends JavaPlugin {
     // Dealing with modules
     //
     private void loadModules() {
-        for (PluginModule module : getModules()) {
+        for (AppleModule module : getModules()) {
             registerModule(module);
             if (module.shouldEnable()) {
                 loadModule(module);
@@ -90,31 +91,31 @@ public abstract class ApplePlugin extends JavaPlugin {
         }
     }
 
-    public abstract Collection<PluginModule> getModules();
+    public abstract Collection<AppleModule> getModules();
 
     private void enableModules() {
-        for (PluginModule module : getRegisteredModules()) {
+        for (AppleModule module : getRegisteredModules()) {
             if (module.shouldEnable()) {
                 enableModule(module);
             }
         }
     }
 
-    public List<PluginModule> getRegisteredModules() {
+    public List<AppleModule> getRegisteredModules() {
         return modules;
     }
 
-    private void registerModule(PluginModule module) {
+    private void registerModule(AppleModule module) {
         modules.add(module);
         module._init(this);
         module.setLogger(getLogger());
     }
 
-    private void loadModule(PluginModule module) {
+    private void loadModule(AppleModule module) {
         module.init();
     }
 
-    public void enableModule(PluginModule module) {
+    public void enableModule(AppleModule module) {
         module.doEnable();
         getLogger().log(Level.INFO, "Enabled Module: " + module.getName());
     }
@@ -167,5 +168,9 @@ public abstract class ApplePlugin extends JavaPlugin {
 
     public NamespacedKey namespacedKey(@NotNull String key) {
         return new NamespacedKey(this, key);
+    }
+
+    public <DBType> void registerConfig(AppleConfig<DBType> config) {
+        AppleConfigsDatabase.get().registerConfig(config);
     }
 }

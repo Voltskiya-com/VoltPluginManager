@@ -1,0 +1,8 @@
+name: ApplePluginManager
+version: 1.0
+main: apple.lib.pmc.PmcPlugin
+api-version: 1.19
+authors: [ appleptr16 ]
+softdepend: [ ]
+load: STARTUP
+

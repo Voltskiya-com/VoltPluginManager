@@ -1,16 +1,14 @@
 package apple.lib.pmc;
 
-import apple.configs.factory.AppleConfigModule;
+import apple.lib.configs.factory.AppleConfigModule;
 import apple.utilities.util.FileFormatting;
-import org.bukkit.NamespacedKey;
-import org.jetbrains.annotations.NotNull;
-
 import java.io.File;
 import java.util.function.BiConsumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public abstract class PluginModule implements AppleConfigModule {
+public abstract class AppleModule implements AppleConfigModule {
+
     private final PluginModuleLogger loggerWrapper = new PluginModuleLogger();
     private boolean enabled;
     private ApplePlugin parent;
@@ -51,7 +49,8 @@ public abstract class PluginModule implements AppleConfigModule {
     public File getDataFolder() {
         if (this.dataFolder == null) {
             this.dataFolder = new File(parent.getDataFolder(), getName());
-            if (!this.dataFolder.exists()) this.dataFolder.mkdirs();
+            if (!this.dataFolder.exists())
+                this.dataFolder.mkdirs();
         }
         return this.dataFolder;
     }
@@ -70,7 +69,7 @@ public abstract class PluginModule implements AppleConfigModule {
         return parent;
     }
 
-    public PluginModule getModule() {
+    public AppleModule getModule() {
         return this;
     }
 
@@ -83,9 +82,11 @@ public abstract class PluginModule implements AppleConfigModule {
     }
 
     public class PluginModuleLogger {
+
         private Logger logger;
 
-        public void run(BiConsumer<Logger, String> loggerFunction, String formatted, Object... args) {
+        public void run(BiConsumer<Logger, String> loggerFunction, String formatted,
+            Object... args) {
             // I would love to know how to properly do this
             loggerFunction.accept(logger, getLoggingFormatted(formatted, args));
         }

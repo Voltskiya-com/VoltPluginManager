@@ -1,5 +1,6 @@
 plugins {
     id 'java'
+    id 'com.github.johnrengelman.shadow' version '7.1.2'
     id 'maven-publish'
 }
 
@@ -26,10 +27,7 @@ publishing {
         }
     }
     publications {
-        mavenJava(MavenPublication) {
-            setGroup groupValue
-            setVersion versionValue
-            from components.java
+        shadow(MavenPublication) { publication -> project.shadow.component(publication)
         }
     }
 }
@@ -42,13 +40,26 @@ configurations {
 }
 
 dependencies {
-    compileOnly 'apple.configs:AppleConfigs:2.0-SNAPSHOT'
-    compileOnly 'apple.utilities:AppleUtilities:1.2-SNAPSHOT'
+    implementation 'io.yml:YmlFileManager:3.0-SNAPSHOT'
+    implementation 'apple.utilities:AppleUtilities:1.2-SNAPSHOT'
+
+    compileOnly 'io.papermc.paper:paper-api:1.19.2-R0.1-SNAPSHOT'
+
+    implementation 'co.aikar:acf-paper:0.5.1-SNAPSHOT'
+
     compileOnly 'net.luckperms:api:5.4'
-    compileOnly 'io.papermc.paper:paper-api:1.17-R0.1-SNAPSHOT'
-    compileOnly 'co.aikar:acf-paper:0.5.0-SNAPSHOT'
     compileOnly 'org.jetbrains:annotations:23.0.0'
-    compileOnly 'com.google.code.gson:gson:2.9.0'
-    compileOnly 'org.yaml:snakeyaml:1.30'
+    compileOnly 'com.google.code.gson:gson:2.10'
 }
 
+shadowJar {
+    outputs.upToDateWhen {
+        false
+    }
+    group project.group
+    version project.version
+    classifier ''
+    relocate 'co.aikar.commands', 'apple.lib.acf'
+    relocate 'co.aikar.locales', 'apple.lib.locales'
+    destinationDirectory.set(file(serverBuildDir))
+}
