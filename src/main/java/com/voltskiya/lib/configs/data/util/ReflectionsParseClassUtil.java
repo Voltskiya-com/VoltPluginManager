@@ -1,4 +1,4 @@
-package apple.lib.configs.data.util;
+package com.voltskiya.lib.configs.data.util;
 
 import apple.file.yml.YcmField;
 import java.lang.reflect.Field;

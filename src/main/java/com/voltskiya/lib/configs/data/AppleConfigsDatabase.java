@@ -1,8 +1,8 @@
-package apple.lib.configs.data;
+package com.voltskiya.lib.configs.data;
 
-import apple.lib.configs.data.config.AppleConfig;
-import apple.lib.configs.data.config.AppleConfigPath;
-import apple.lib.configs.data.config.ApplePartialConfigPath;
+import com.voltskiya.lib.configs.data.config.AppleConfig;
+import com.voltskiya.lib.configs.data.config.AppleConfigPath;
+import com.voltskiya.lib.configs.data.config.ApplePartialConfigPath;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;

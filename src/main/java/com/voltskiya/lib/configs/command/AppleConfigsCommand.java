@@ -1,8 +1,8 @@
-package apple.lib.configs.command;
+package com.voltskiya.lib.configs.command;
 
-import apple.lib.configs.data.AppleConfigsDatabase;
-import apple.lib.configs.data.config.AppleConfig;
-import apple.lib.pmc.PmcPlugin;
+import com.voltskiya.lib.configs.data.AppleConfigsDatabase;
+import com.voltskiya.lib.configs.data.config.AppleConfig;
+import com.voltskiya.lib.pmc.PmcPlugin;
 import co.aikar.commands.BaseCommand;
 import co.aikar.commands.BukkitCommandCompletionContext;
 import co.aikar.commands.CommandCompletions;

@@ -1,8 +1,8 @@
-name: ApplePluginManager
-version: 1.0
-main: apple.lib.pmc.PmcPlugin
+name: VoltPluginManager
+version: 3.1
+main: com.voltskiya.lib.pmc.PmcPlugin
 api-version: 1.19
 authors: [ appleptr16 ]
-softdepend: [ ]
+softdepend: [ LuckPerms ]
 load: STARTUP
 

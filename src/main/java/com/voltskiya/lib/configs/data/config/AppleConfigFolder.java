@@ -1,6 +1,6 @@
-package apple.lib.configs.data.config;
+package com.voltskiya.lib.configs.data.config;
 
-import apple.lib.configs.factory.AppleConfigLike;
+import com.voltskiya.lib.configs.factory.AppleConfigLike;
 import java.util.Arrays;
 
 public record AppleConfigFolder(

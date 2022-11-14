@@ -59,7 +59,7 @@ shadowJar {
     group project.group
     version project.version
     classifier ''
-    relocate 'co.aikar.commands', 'apple.lib.acf'
-    relocate 'co.aikar.locales', 'apple.lib.locales'
+    relocate 'co.aikar.commands', 'com.voltskiya.lib.acf'
+    relocate 'co.aikar.locales', 'com.voltskiya.lib.locales'
     destinationDirectory.set(file(serverBuildDir))
 }

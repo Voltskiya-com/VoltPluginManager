@@ -1,7 +1,7 @@
-package apple.lib.pmc;
+package com.voltskiya.lib;
 
-import apple.lib.configs.data.AppleConfigsDatabase;
-import apple.lib.configs.data.config.AppleConfig;
+import com.voltskiya.lib.configs.data.AppleConfigsDatabase;
+import com.voltskiya.lib.configs.data.config.AppleConfig;
 import co.aikar.commands.BaseCommand;
 import co.aikar.commands.PaperCommandManager;
 import java.util.ArrayList;
@@ -16,9 +16,9 @@ import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 
-public abstract class ApplePlugin extends JavaPlugin {
+public abstract class AbstractVoltPlugin extends JavaPlugin {
 
-    private final List<AppleModule> modules = new ArrayList<>();
+    private final List<AbstractModule> modules = new ArrayList<>();
     private PaperCommandManager commandManager;
     private LuckPerms luckPerms;
 
@@ -63,7 +63,7 @@ public abstract class ApplePlugin extends JavaPlugin {
     @Override
     public void onDisable() {
         onDisablePre();
-        for (AppleModule module : modules) {
+        for (AbstractModule module : modules) {
             if (module.shouldEnable()) {
                 module.onDisable();
                 module.setEnabled(false);
@@ -83,7 +83,7 @@ public abstract class ApplePlugin extends JavaPlugin {
     // Dealing with modules
     //
     private void loadModules() {
-        for (AppleModule module : getModules()) {
+        for (AbstractModule module : getModules()) {
             registerModule(module);
             if (module.shouldEnable()) {
                 loadModule(module);
@@ -91,31 +91,31 @@ public abstract class ApplePlugin extends JavaPlugin {
         }
     }
 
-    public abstract Collection<AppleModule> getModules();
+    public abstract Collection<AbstractModule> getModules();
 
     private void enableModules() {
-        for (AppleModule module : getRegisteredModules()) {
+        for (AbstractModule module : getRegisteredModules()) {
             if (module.shouldEnable()) {
                 enableModule(module);
             }
         }
     }
 
-    public List<AppleModule> getRegisteredModules() {
+    public List<AbstractModule> getRegisteredModules() {
         return modules;
     }
 
-    private void registerModule(AppleModule module) {
+    private void registerModule(AbstractModule module) {
         modules.add(module);
         module._init(this);
         module.setLogger(getLogger());
     }
 
-    private void loadModule(AppleModule module) {
+    private void loadModule(AbstractModule module) {
         module.init();
     }
 
-    public void enableModule(AppleModule module) {
+    public void enableModule(AbstractModule module) {
         module.doEnable();
         getLogger().log(Level.INFO, "Enabled Module: " + module.getName());
     }

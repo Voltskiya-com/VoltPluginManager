@@ -1,4 +1,4 @@
-package apple.lib.configs.data.config;
+package com.voltskiya.lib.configs.data.config;
 
 import java.util.ArrayList;
 import java.util.List;

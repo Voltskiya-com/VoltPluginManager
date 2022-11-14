@@ -1,20 +1,20 @@
-package apple.lib.pmc;
+package com.voltskiya.lib;
 
-import apple.lib.configs.factory.AppleConfigModule;
+import com.voltskiya.lib.configs.factory.AppleConfigModule;
 import apple.utilities.util.FileFormatting;
 import java.io.File;
 import java.util.function.BiConsumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public abstract class AppleModule implements AppleConfigModule {
+public abstract class AbstractModule implements AppleConfigModule {
 
     private final PluginModuleLogger loggerWrapper = new PluginModuleLogger();
     private boolean enabled;
-    private ApplePlugin parent;
+    private AbstractVoltPlugin parent;
     private File dataFolder = null;
 
-    public void _init(ApplePlugin parent) {
+    public void _init(AbstractVoltPlugin parent) {
         this.parent = parent;
         this.registerConfigs();
     }
@@ -65,11 +65,11 @@ public abstract class AppleModule implements AppleConfigModule {
 
     public abstract String getName();
 
-    public ApplePlugin getPlugin() {
+    public AbstractVoltPlugin getPlugin() {
         return parent;
     }
 
-    public AppleModule getModule() {
+    public AbstractModule getModule() {
         return this;
     }
 

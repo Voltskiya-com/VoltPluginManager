@@ -1,7 +1,7 @@
-package apple.lib.configs.factory;
+package com.voltskiya.lib.configs.factory;
 
-import apple.lib.configs.data.config.AppleConfig;
-import apple.lib.configs.data.config.AppleConfigProps;
+import com.voltskiya.lib.configs.data.config.AppleConfig;
+import com.voltskiya.lib.configs.data.config.AppleConfigProps;
 import java.io.File;
 import java.util.Arrays;
 import java.util.Collections;

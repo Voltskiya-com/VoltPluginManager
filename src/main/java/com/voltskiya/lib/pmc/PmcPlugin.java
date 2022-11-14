@@ -1,10 +1,12 @@
-package apple.lib.pmc;
+package com.voltskiya.lib.pmc;
 
-import apple.lib.configs.command.AppleConfigsCommand;
+import com.voltskiya.lib.AbstractModule;
+import com.voltskiya.lib.AbstractVoltPlugin;
+import com.voltskiya.lib.configs.command.AppleConfigsCommand;
 import java.util.Collection;
 import java.util.Collections;
 
-public class PmcPlugin extends ApplePlugin {
+public class PmcPlugin extends AbstractVoltPlugin {
 
     private static PmcPlugin instance;
 
@@ -17,7 +19,7 @@ public class PmcPlugin extends ApplePlugin {
     }
 
     @Override
-    public Collection<AppleModule> getModules() {
+    public Collection<AbstractModule> getModules() {
         return Collections.emptyList();
     }
 

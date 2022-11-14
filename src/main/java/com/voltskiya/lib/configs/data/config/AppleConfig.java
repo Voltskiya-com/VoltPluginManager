@@ -1,9 +1,9 @@
-package apple.lib.configs.data.config;
+package com.voltskiya.lib.configs.data.config;
 
-import apple.lib.configs.data.util.ReflectionsParseClassUtil;
-import apple.lib.configs.factory.AppleConfigLike;
-import apple.lib.configs.factory.AppleConfigModule;
-import apple.lib.pmc.PmcPlugin;
+import com.voltskiya.lib.configs.data.util.ReflectionsParseClassUtil;
+import com.voltskiya.lib.configs.factory.AppleConfigLike;
+import com.voltskiya.lib.configs.factory.AppleConfigModule;
+import com.voltskiya.lib.pmc.PmcPlugin;
 import apple.utilities.database.ajd.AppleAJD;
 import apple.utilities.database.ajd.AppleAJDInstImpl;
 import apple.utilities.threading.service.queue.AsyncTaskQueue;

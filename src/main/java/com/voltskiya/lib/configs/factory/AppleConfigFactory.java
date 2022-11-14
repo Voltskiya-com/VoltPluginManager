@@ -1,8 +1,8 @@
-package apple.lib.configs.factory;
+package com.voltskiya.lib.configs.factory;
 
-import apple.lib.configs.data.config.AppleConfig;
-import apple.lib.configs.data.config.AppleConfigFolder;
-import apple.lib.configs.data.config.AppleConfigProps;
+import com.voltskiya.lib.configs.data.config.AppleConfigFolder;
+import com.voltskiya.lib.configs.data.config.AppleConfigProps;
+import com.voltskiya.lib.configs.data.config.AppleConfig.Builder;
 import java.util.List;
 
 public interface AppleConfigFactory {
@@ -18,18 +18,18 @@ public interface AppleConfigFactory {
         return new AppleConfigFolder(props, configs);
     }
 
-    default <DBType> AppleConfig.Builder<DBType> config(Class<DBType> dbType, String name,
+    default <DBType> Builder<DBType> config(Class<DBType> dbType, String name,
         String... path) {
-        return new AppleConfig.Builder<>(name, getModule(), dbType, path);
+        return new Builder<>(name, getModule(), dbType, path);
     }
 
-    default <DBType> AppleConfig.Builder<DBType> configJson(Class<DBType> dbType, String name,
+    default <DBType> Builder<DBType> configJson(Class<DBType> dbType, String name,
         String... path) {
         return this.config(dbType, name, path).asJson();
     }
 
 
-    default <DBType> AppleConfig.Builder<DBType> configYaml(Class<DBType> dbType, String name,
+    default <DBType> Builder<DBType> configYaml(Class<DBType> dbType, String name,
         String... path) {
         return this.config(dbType, name, path).asYaml();
     }
