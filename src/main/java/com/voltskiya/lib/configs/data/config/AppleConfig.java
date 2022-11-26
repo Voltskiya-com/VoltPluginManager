@@ -1,15 +1,15 @@
 package com.voltskiya.lib.configs.data.config;
 
+import apple.utilities.database.ajd.AppleAJD;
+import apple.utilities.database.ajd.AppleAJDInst;
+import apple.utilities.database.ajd.impl.AppleAJDInstImpl;
+import apple.utilities.threading.service.queue.TaskHandlerQueue;
+import apple.utilities.util.FileFormatting;
+import com.google.gson.Gson;
 import com.voltskiya.lib.configs.data.util.ReflectionsParseClassUtil;
 import com.voltskiya.lib.configs.factory.AppleConfigLike;
 import com.voltskiya.lib.configs.factory.AppleConfigModule;
 import com.voltskiya.lib.pmc.PmcPlugin;
-import apple.utilities.database.ajd.AppleAJD;
-import apple.utilities.database.ajd.AppleAJDInstImpl;
-import apple.utilities.threading.service.queue.AsyncTaskQueue;
-import apple.utilities.threading.service.queue.TaskHandlerQueue;
-import apple.utilities.util.FileFormatting;
-import com.google.gson.Gson;
 import java.io.File;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -21,11 +21,11 @@ import org.jetbrains.annotations.Nullable;
 
 public class AppleConfig<DBType> implements ReflectionsParseClassUtil {
 
-    private static final TaskHandlerQueue taskHandler = new TaskHandlerQueue(20, 0, 0);
+    private static final TaskHandlerQueue taskHandler = new TaskHandlerQueue(10, 0, 0);
     private final AppleConfigModule module;
     private final Class<DBType> dbType;
     private final String name;
-    private AppleAJDInstImpl<DBType, AsyncTaskQueue> database;
+    private AppleAJDInst<DBType> database;
     private String[] path;
     private String extension;
 
@@ -45,7 +45,7 @@ public class AppleConfig<DBType> implements ReflectionsParseClassUtil {
         this.database = new AppleAJDInstImpl<>(this.dbType, this.getFile(),
             taskHandler.taskCreator());
         serializing.handleDatabase(database);
-        this.database.loadOrMake();
+        DBType db = this.database.loadOrMake();
     }
 
     private File getFile() {
@@ -56,6 +56,10 @@ public class AppleConfig<DBType> implements ReflectionsParseClassUtil {
 
     public void save() {
         this.database.save();
+    }
+
+    public void saveNow() {
+        this.database.saveNow();
     }
 
     public void register() {
@@ -138,15 +142,15 @@ public class AppleConfig<DBType> implements ReflectionsParseClassUtil {
         return new Gson().toJson(currentObj);
     }
 
-    private record SerializingProp(Consumer<AppleAJDInstImpl<?, ?>> handleDatabase,
+    private record SerializingProp(Consumer<AppleAJDInst<?>> handleDatabase,
                                    String extension) {
 
-        private SerializingProp(Consumer<AppleAJDInstImpl<?, ?>> handleDatabase, String extension) {
+        private SerializingProp(Consumer<AppleAJDInst<?>> handleDatabase, String extension) {
             this.handleDatabase = handleDatabase;
             this.extension = "." + extension;
         }
 
-        public <DBType> void handleDatabase(AppleAJDInstImpl<DBType, AsyncTaskQueue> database) {
+        public <DBType> void handleDatabase(AppleAJDInst<DBType> database) {
             this.handleDatabase.accept(database);
         }
     }
@@ -183,7 +187,7 @@ public class AppleConfig<DBType> implements ReflectionsParseClassUtil {
         }
 
         public Builder<DBType> asJson(Gson gson) {
-            Consumer<AppleAJDInstImpl<?, ?>> modifier = db -> db.setSerializingJson(gson);
+            Consumer<AppleAJDInst<?>> modifier = db -> db.setSerializingJson(gson);
             this.serializing = new SerializingProp(modifier, FileFormatting.JSON_EXTENSION);
             return this;
         }

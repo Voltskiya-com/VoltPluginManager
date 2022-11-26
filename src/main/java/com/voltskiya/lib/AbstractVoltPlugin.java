@@ -1,9 +1,9 @@
 package com.voltskiya.lib;
 
-import com.voltskiya.lib.configs.data.AppleConfigsDatabase;
-import com.voltskiya.lib.configs.data.config.AppleConfig;
 import co.aikar.commands.BaseCommand;
 import co.aikar.commands.PaperCommandManager;
+import com.voltskiya.lib.configs.data.AppleConfigsDatabase;
+import com.voltskiya.lib.configs.data.config.AppleConfig;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -108,7 +108,6 @@ public abstract class AbstractVoltPlugin extends JavaPlugin {
     private void registerModule(AbstractModule module) {
         modules.add(module);
         module._init(this);
-        module.setLogger(getLogger());
     }
 
     private void loadModule(AbstractModule module) {
@@ -158,12 +157,12 @@ public abstract class AbstractVoltPlugin extends JavaPlugin {
         getCommandManager().registerCommand(command);
     }
 
-    public void scheduleSyncDelayedTask(Runnable task, long delay) {
-        Bukkit.getScheduler().scheduleSyncDelayedTask(this, task, delay);
+    public int scheduleSyncDelayedTask(Runnable task, long delay) {
+        return Bukkit.getScheduler().scheduleSyncDelayedTask(this, task, delay);
     }
 
-    public void scheduleSyncDelayedTask(Runnable task) {
-        Bukkit.getScheduler().scheduleSyncDelayedTask(this, task);
+    public int scheduleSyncDelayedTask(Runnable task) {
+        return Bukkit.getScheduler().scheduleSyncDelayedTask(this, task);
     }
 
     public NamespacedKey namespacedKey(@NotNull String key) {
