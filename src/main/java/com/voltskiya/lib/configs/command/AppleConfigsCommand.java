@@ -23,7 +23,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 @CommandAlias("config")
-@CommandPermission("config.all")
+@CommandPermission("volt.config.all")
 public class AppleConfigsCommand extends BaseCommand {
 
     public AppleConfigsCommand() {
