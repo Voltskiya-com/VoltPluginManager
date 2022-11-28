@@ -48,5 +48,6 @@ jobs:
           gradle-version: 7.2
           arguments: publishToVolt
         env:
+          REPOSITORY: ${{ github.repository }}
           USERNAME: ${{ github.actor }}
           TOKEN: ${{ secrets.GITHUB_TOKEN }}
