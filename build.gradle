@@ -27,23 +27,28 @@ publishing {
         }
         maven {
             name "GitHubPackages"
-            url = uri("https://maven.pkg.github.com/${System.getenv("GITHUB_REPOSITORY")}/")
+            url "https://maven.pkg.github.com/${System.getenv("GITHUB_REPOSITORY") ?: project.findProperty("GITHUB_REPOSITORY")}"
             credentials {
-                username = System.getenv("GITHUB_ACTOR")
-                password = System.getenv("GITHUB_TOKEN")
+                username System.getenv("GITHUB_ACTOR") ?: project.findProperty("volt.github.user")
+                password System.getenv("GITHUB_TOKEN") ?: project.findProperty("volt.github.token")
             }
         }
+
     }
     publications {
-        shadow(MavenPublication) { publication -> project.shadow.component(publication)
+        shadow(MavenPublication) { publication ->
+            {
+                publication.artifactId project.name.toLowerCase()
+                project.shadow.component(publication)
+            }
         }
     }
 }
 task publishToAppleptr16 {
-    dependsOn(publishAllPublicationsToAppleptr16RepoRepository)
+    dependsOn(shadowJar, publishAllPublicationsToAppleptr16RepoRepository)
 }
 task publishToVolt {
-    dependsOn(publishAllPublicationsToGitHubPackagesRepository)
+    dependsOn(shadowJar, publishAllPublicationsToGitHubPackagesRepository)
 }
 configurations {
     all {
@@ -71,7 +76,7 @@ shadowJar {
     }
     group project.group
     version project.version
-    classifier ''
+    classifier 'all'
     relocate 'co.aikar.commands', 'com.voltskiya.lib.acf'
     relocate 'co.aikar.locales', 'com.voltskiya.lib.locales'
     destinationDirectory.set(file(serverBuildDir))
