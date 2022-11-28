@@ -3,6 +3,7 @@ package com.voltskiya.lib;
 import apple.utilities.util.FileFormatting;
 import com.voltskiya.lib.configs.factory.AppleConfigModule;
 import java.io.File;
+import org.bukkit.NamespacedKey;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,6 +51,10 @@ public abstract class AbstractModule implements AppleConfigModule {
 
     public File getFile(String... children) {
         return FileFormatting.fileWithChildren(getDataFolder(), children);
+    }
+
+    public NamespacedKey namespacedKey(String key) {
+        return new NamespacedKey(getPlugin(), getName() + "." + key);
     }
 
     public boolean shouldEnable() {
