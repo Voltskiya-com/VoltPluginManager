@@ -50,4 +50,4 @@ jobs:
         env:
           REPOSITORY: ${{ github.repository }}
           USERNAME: ${{ github.actor }}
-          TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TOKEN: ${{ github.token }}
