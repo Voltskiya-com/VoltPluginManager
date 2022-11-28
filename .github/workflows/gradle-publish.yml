@@ -45,7 +45,7 @@ jobs:
       - name: Publish to GitHub Packages
         uses: gradle/gradle-build-action@v2
         with:
-          gradle-version: wrapper
+          gradle-version: 7.2
           arguments: publishToVolt
         env:
           USERNAME: ${{ github.actor }}
