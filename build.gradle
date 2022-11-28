@@ -25,13 +25,26 @@ publishing {
             url 'https://reposilite.appleptr16.com/appleptr16'
             credentials(PasswordCredentials)
         }
+        maven {
+            name "GitHubPackages"
+            url "https://maven.pkg.github.com/voltskiya-com/${project.name}"
+            credentials {
+                username System.getenv("GITHUB_ACTOR")
+                password System.getenv("GITHUB_TOKEN")
+            }
+        }
     }
     publications {
         shadow(MavenPublication) { publication -> project.shadow.component(publication)
         }
     }
 }
-
+task publishToAppleptr16 {
+    dependsOn(publishAllPublicationsToAppleptr16RepoRepository)
+}
+task publishToVolt {
+    dependsOn(publishAllPublicationsToGitHubPackagesRepository)
+}
 configurations {
     all {
         resolutionStrategy.cacheDynamicVersionsFor 1, 'seconds'
