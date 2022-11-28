@@ -38,7 +38,7 @@ publishing {
     publications {
         shadow(MavenPublication) { publication ->
             {
-                publication.artifactId project.name.toLowerCase()
+                publication.artifactId(project.name.toLowerCase())
                 project.shadow.component(publication)
             }
         }
@@ -76,8 +76,16 @@ shadowJar {
     }
     group project.group
     version project.version
-    classifier 'all'
+    classifier ''
     relocate 'co.aikar.commands', 'com.voltskiya.lib.acf'
     relocate 'co.aikar.locales', 'com.voltskiya.lib.locales'
-    destinationDirectory.set(file(serverBuildDir))
+
+    doLast {
+        if (project.hasProperty serverBuildDir) {
+            copy {
+                from shadowJar.getArchiveFile()
+                into file(serverBuildDir)
+            }
+        }
+    }
 }
