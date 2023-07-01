@@ -2,10 +2,10 @@ package com.voltskiya.lib.configs.data.config;
 
 import apple.utilities.database.ajd.AppleAJD;
 import apple.utilities.database.ajd.AppleAJDInst;
-import apple.utilities.database.ajd.impl.AppleAJDInstImpl;
 import apple.utilities.threading.service.queue.TaskHandlerQueue;
 import apple.utilities.util.FileFormatting;
 import com.google.gson.Gson;
+import com.voltskiya.lib.configs.data.config.init.IAppleConfigInit;
 import com.voltskiya.lib.configs.data.util.ReflectionsParseClassUtil;
 import com.voltskiya.lib.configs.factory.AppleConfigLike;
 import com.voltskiya.lib.configs.factory.AppleConfigModule;
@@ -42,10 +42,13 @@ public class AppleConfig<DBType> implements ReflectionsParseClassUtil {
     public void build(SerializingProp serializing, AppleConfigProps props) {
         this.path = props.path();
         this.extension = serializing.extension();
-        this.database = new AppleAJDInstImpl<>(this.dbType, this.getFile(),
+        this.database = AppleAJD.createInst(this.dbType, this.getFile(),
             taskHandler.taskCreator());
         serializing.handleDatabase(database);
-        DBType db = this.database.loadOrMake();
+        DBType inst = this.database.loadOrMake(false);
+        if (inst instanceof IAppleConfigInit init) {
+            init.setManager(this);
+        }
     }
 
     private File getFile() {

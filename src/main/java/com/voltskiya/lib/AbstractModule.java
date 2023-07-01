@@ -2,6 +2,7 @@ package com.voltskiya.lib;
 
 import apple.utilities.util.FileFormatting;
 import com.voltskiya.lib.configs.factory.AppleConfigModule;
+import com.voltskiya.lib.timings.scheduler.VoltTaskManager;
 import java.io.File;
 import org.bukkit.NamespacedKey;
 import org.slf4j.Logger;
@@ -13,19 +14,30 @@ public abstract class AbstractModule implements AppleConfigModule {
     private AbstractVoltPlugin parent;
     private File dataFolder = null;
     private Logger logger;
+    private VoltTaskManager taskManager;
 
 
-    public void _init(AbstractVoltPlugin parent) {
+    public final void _init(AbstractVoltPlugin parent) {
         this.parent = parent;
         // i still want this to work better than it does
         this.logger = LoggerFactory.getLogger(parent.getName() + "] [" + this.getName());
         this.registerConfigs();
     }
 
+    public VoltTaskManager getTaskManager() {
+        if (this.taskManager == null) this.taskManager = new VoltTaskManager(this);
+        return this.taskManager;
+    }
+
     public void init() {
     }
 
     public abstract void enable();
+
+    public final void onDisable_() {
+        if (this.taskManager != null) this.taskManager.onDisable();
+        this.onDisable();
+    }
 
     public void onDisable() {
     }

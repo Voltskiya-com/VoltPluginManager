@@ -25,15 +25,6 @@ publishing {
             url 'https://reposilite.appleptr16.com/appleptr16'
             credentials(PasswordCredentials)
         }
-        maven {
-            name "GitHubPackages"
-            url "https://maven.pkg.github.com/${System.getenv("GITHUB_REPOSITORY") ?: project.findProperty("GITHUB_REPOSITORY")}"
-            credentials {
-                username System.getenv("GITHUB_ACTOR") ?: project.findProperty("volt.github.user")
-                password System.getenv("GITHUB_TOKEN") ?: project.findProperty("volt.github.token")
-            }
-        }
-
     }
     publications {
         shadow(MavenPublication) { publication ->
@@ -44,14 +35,11 @@ publishing {
         }
     }
 }
-task publishToAppleptr16 {
+tasks.register('publishToAppleptr16') {
     dependsOn(shadowJar, publishAllPublicationsToAppleptr16RepoRepository)
 }
-task publishToVolt {
-    dependsOn(shadowJar, publishAllPublicationsToGitHubPackagesRepository)
-}
 configurations {
-    all {
+    configureEach {
         resolutionStrategy.cacheDynamicVersionsFor 1, 'seconds'
         resolutionStrategy.cacheChangingModulesFor 1, 'seconds'
     }
@@ -61,13 +49,11 @@ dependencies {
     implementation 'io.yml:YmlFileManager:3.1-SNAPSHOT'
     implementation 'apple.utilities:AppleUtilities:1.3-SNAPSHOT'
 
-    compileOnly 'io.papermc.paper:paper-api:1.19.2-R0.1-SNAPSHOT'
+    compileOnly 'io.papermc.paper:paper-api:1.20.1-R0.1-SNAPSHOT'
 
     implementation 'co.aikar:acf-paper:0.5.1-SNAPSHOT'
 
     compileOnly 'net.luckperms:api:5.4'
-    compileOnly 'org.jetbrains:annotations:23.0.0'
-    compileOnly 'com.google.code.gson:gson:2.10'
 }
 
 shadowJar {
@@ -81,11 +67,9 @@ shadowJar {
     relocate 'co.aikar.locales', 'com.voltskiya.lib.locales'
 
     doLast {
-        if (project.hasProperty serverBuildDir) {
-            copy {
-                from shadowJar.getArchiveFile()
-                into file(serverBuildDir)
-            }
+        copy {
+            from shadowJar.getArchiveFile()
+            into file(serverBuildDir)
         }
     }
 }

@@ -65,7 +65,7 @@ public abstract class AbstractVoltPlugin extends JavaPlugin {
         onDisablePre();
         for (AbstractModule module : modules) {
             if (module.shouldEnable()) {
-                module.onDisable();
+                module.onDisable_();
                 module.setEnabled(false);
             }
         }
@@ -163,6 +163,14 @@ public abstract class AbstractVoltPlugin extends JavaPlugin {
 
     public int scheduleSyncDelayedTask(Runnable task) {
         return Bukkit.getScheduler().scheduleSyncDelayedTask(this, task);
+    }
+
+    public void runTaskAsync(Runnable task, long delay) {
+        Bukkit.getScheduler().runTaskLaterAsynchronously(this, task, delay);
+    }
+
+    public void runTaskAsync(Runnable task) {
+        Bukkit.getScheduler().runTaskAsynchronously(this, task);
     }
 
     public NamespacedKey namespacedKey(@NotNull String key) {
