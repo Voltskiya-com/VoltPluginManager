@@ -1,9 +1,10 @@
 package com.voltskiya.lib.configs.factory;
 
+import com.voltskiya.lib.configs.data.config.AppleConfig.Builder;
 import com.voltskiya.lib.configs.data.config.AppleConfigFolder;
 import com.voltskiya.lib.configs.data.config.AppleConfigProps;
-import com.voltskiya.lib.configs.data.config.AppleConfig.Builder;
 import java.util.List;
+import org.apache.commons.lang3.NotImplementedException;
 
 public interface AppleConfigFactory {
 
@@ -31,6 +32,6 @@ public interface AppleConfigFactory {
 
     default <DBType> Builder<DBType> configYaml(Class<DBType> dbType, String name,
         String... path) {
-        return this.config(dbType, name, path).asYaml();
+        throw new NotImplementedException("Config Yaml not implemented");
     }
 }

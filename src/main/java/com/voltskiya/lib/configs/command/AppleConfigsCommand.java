@@ -1,8 +1,5 @@
 package com.voltskiya.lib.configs.command;
 
-import com.voltskiya.lib.configs.data.AppleConfigsDatabase;
-import com.voltskiya.lib.configs.data.config.AppleConfig;
-import com.voltskiya.lib.pmc.PmcPlugin;
 import co.aikar.commands.BaseCommand;
 import co.aikar.commands.BukkitCommandCompletionContext;
 import co.aikar.commands.CommandCompletions;
@@ -13,11 +10,15 @@ import co.aikar.commands.annotation.CommandCompletion;
 import co.aikar.commands.annotation.CommandPermission;
 import co.aikar.commands.annotation.Default;
 import co.aikar.commands.annotation.Name;
+import com.voltskiya.lib.configs.data.AppleConfigsDatabase;
+import com.voltskiya.lib.configs.data.config.AppleConfig;
+import com.voltskiya.lib.pmc.PmcPlugin;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import org.bukkit.ChatColor;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -46,13 +47,11 @@ public class AppleConfigsCommand extends BaseCommand {
         System.arraycopy(pathInConfig, 0, pathToSet, 0, pathToSet.length);
         String pathToSetJoined = String.join(".", pathToSet);
         if (config.setValue(pathToSet, valueToSet)) {
-            player.sendMessage(
-                ChatColor.GREEN + String.format("Successfully set set %s to %s", pathToSetJoined,
-                    valueToSet));
+            String msg = String.format("Successfully set set %s to %s", pathToSetJoined, valueToSet);
+            player.sendMessage(Component.text(msg, NamedTextColor.GREEN));
         } else {
-            player.sendMessage(
-                ChatColor.RED + String.format("Failed to set %s to %s", pathToSetJoined,
-                    valueToSet));
+            String msg = String.format("Failed to set %s to %s", pathToSetJoined, valueToSet);
+            player.sendMessage(Component.text(msg, NamedTextColor.RED));
         }
     }
 

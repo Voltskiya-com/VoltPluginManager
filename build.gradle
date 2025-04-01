@@ -1,23 +1,27 @@
 plugins {
-    id 'java'
-    id 'com.github.johnrengelman.shadow' version '7.1.2'
+    id 'java-library'
     id 'maven-publish'
+    id 'io.ebean' version '15.10.0'
+    id 'com.gradleup.shadow' version '9.0.0-beta11'
+    id 'io.papermc.paperweight.userdev' version '2.0.0-beta.16'
+    id 'xyz.jpenilla.resource-factory-bukkit-convention' version '1.2.0'
 }
 
 repositories {
-    maven { url "https://reposilite.appleptr16.com/appleptr16" }
+    mavenLocal()
     mavenCentral()
-    maven { url 'https://papermc.io/repo/repository/maven-public/' }
-    maven { url 'https://repo.aikar.co/content/groups/aikar/' }
-}
-java {
-    toolchain {
-        languageVersion.set(JavaLanguageVersion.of(17))
-    }
+    maven { url = 'https://reposilite.appleptr16.com/appleptr16' }
+    maven { url = 'https://repo.codemc.io/repository/maven-public/' }
+    maven { url = 'https://repo.aikar.co/content/groups/aikar/' }
 }
 
-project.group groupValue
-project.version versionValue
+java {
+    toolchain.languageVersion = JavaLanguageVersion.of(21)
+}
+
+project.group = groupValue
+project.version = versionValue
+
 publishing {
     repositories {
         maven {
@@ -27,49 +31,77 @@ publishing {
         }
     }
     publications {
-        shadow(MavenPublication) { publication ->
-            {
-                publication.artifactId(project.name.toLowerCase())
-                project.shadow.component(publication)
-            }
+        mavenJava(MavenPublication) {
+            setGroup groupValue
+            setVersion versionValue
+            from components.java
         }
     }
 }
-tasks.register('publishToAppleptr16') {
-    dependsOn(shadowJar, publishAllPublicationsToAppleptr16RepoRepository)
-}
-configurations {
-    configureEach {
-        resolutionStrategy.cacheDynamicVersionsFor 1, 'seconds'
-        resolutionStrategy.cacheChangingModulesFor 1, 'seconds'
-    }
+
+configurations.configureEach {
+    resolutionStrategy.cacheDynamicVersionsFor 1, 'seconds'
+    resolutionStrategy.cacheChangingModulesFor 1, 'seconds'
 }
 
+
+project.ext.ebean_version = '15.10.0'
+// https://search.maven.org/search?q=g:io.ebean
 dependencies {
-    implementation 'io.yml:YmlFileManager:3.1-SNAPSHOT'
-    implementation 'apple.utilities:AppleUtilities:1.3-SNAPSHOT'
+    // Base server Paper and Spigot
+    paperweight.paperDevBundle('1.21.4-R0.1-SNAPSHOT')
 
-    compileOnly 'io.papermc.paper:paper-api:1.20.1-R0.1-SNAPSHOT'
 
+    // Minecraft Libraries
     implementation 'co.aikar:acf-paper:0.5.1-SNAPSHOT'
-
     compileOnly 'net.luckperms:api:5.4'
+
+    // appleptr16 Libraries
+    implementation "apple.lib:AppleEbeanDatabase:${ebean_version}-SNAPSHOT"
+    implementation 'io.yml:YmlFileManager:3.1-SNAPSHOT'
+    implementation 'apple.utilities:AppleUtilities:1.4-SNAPSHOT'
 }
+
+bukkitPluginYaml {
+    name.set 'VoltPluginManager'
+    version.set versionValue
+    main.set 'com.voltskiya.lib.pmc.PmcPlugin'
+    apiVersion.set mcVersion
+    softDepend.add 'LuckPerms'
+    depend.add 'LoadDependencies'
+    authors.add 'appleptr16'
+}
+
+tasks.register 'publishPlugin'
 
 shadowJar {
-    outputs.upToDateWhen {
-        false
+    archiveClassifier.set ''
+    manifest {
+        attributes 'Multi-Release': true
     }
-    group project.group
-    version project.version
-    classifier ''
+    mergeServiceFiles()
+
+    // ### Relocation
     relocate 'co.aikar.commands', 'com.voltskiya.lib.acf'
     relocate 'co.aikar.locales', 'com.voltskiya.lib.locales'
+    // apple ebean relocation
+    relocate 'apple.lib.ebean.database.AppleEbean', 'com.voltskiya.lib.database.Voltskiya'
+    relocate 'apple.lib.ebean.database.config.AppleEbean', 'com.voltskiya.lib.database.config.Voltskiya'
+    // when publishing comment out the next 3 lines ???
+    relocate 'io.ebean', 'com.voltskiya.io.ebean'
+    relocate 'io.ebeaninternal', 'com.voltskiya.io.ebean'
+    relocate 'io.ebeanservice', 'com.voltskiya.io.ebean'
 
+    outputs.upToDateWhen { false }
     doLast {
         copy {
             from shadowJar.getArchiveFile()
             into file(serverBuildDir)
         }
     }
+}
+
+publishPlugin {
+    dependsOn(shadowJar)
+    dependsOn(publish)
 }

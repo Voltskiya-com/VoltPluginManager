@@ -7,4 +7,6 @@ public interface IAppleConfigInit {
     default void setManager(AppleConfig<?> manager) {
     }
 
+    default void onInitConfig() {
+    }
 }

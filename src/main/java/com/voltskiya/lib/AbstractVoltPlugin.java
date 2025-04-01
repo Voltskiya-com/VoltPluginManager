@@ -1,9 +1,11 @@
 package com.voltskiya.lib;
 
+import apple.utilities.util.FileFormatting;
 import co.aikar.commands.BaseCommand;
 import co.aikar.commands.PaperCommandManager;
 import com.voltskiya.lib.configs.data.AppleConfigsDatabase;
 import com.voltskiya.lib.configs.data.config.AppleConfig;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -63,12 +65,9 @@ public abstract class AbstractVoltPlugin extends JavaPlugin {
     @Override
     public void onDisable() {
         onDisablePre();
-        for (AbstractModule module : modules) {
-            if (module.shouldEnable()) {
-                module.onDisable_();
-                module.setEnabled(false);
-            }
-        }
+        getRegisteredModules().stream()
+            .filter(AbstractModule::shouldEnable)
+            .forEachOrdered(AbstractModule::onDisable_);
         onDisablePost();
     }
 
@@ -83,12 +82,10 @@ public abstract class AbstractVoltPlugin extends JavaPlugin {
     // Dealing with modules
     //
     private void loadModules() {
-        for (AbstractModule module : getModules()) {
-            registerModule(module);
-            if (module.shouldEnable()) {
-                loadModule(module);
-            }
-        }
+        getModules().forEach(this::registerModule);
+        getRegisteredModules().stream()
+            .filter(AbstractModule::shouldEnable)
+            .forEachOrdered(this::loadModule);
     }
 
     public abstract Collection<AbstractModule> getModules();
@@ -115,7 +112,7 @@ public abstract class AbstractVoltPlugin extends JavaPlugin {
     }
 
     public void enableModule(AbstractModule module) {
-        module.doEnable();
+        module.onEnable_();
         getLogger().log(Level.INFO, "Enabled Module: " + module.getName());
     }
 
@@ -149,35 +146,41 @@ public abstract class AbstractVoltPlugin extends JavaPlugin {
     //
     // Quality of Life utilities
     //
-    public void registerEvents(Listener listener) {
+    public final void registerEvents(Listener listener) {
         Bukkit.getPluginManager().registerEvents(listener, this);
     }
 
-    public void registerCommand(BaseCommand command) {
+    public final void registerCommand(BaseCommand command) {
         getCommandManager().registerCommand(command);
     }
 
-    public int scheduleSyncDelayedTask(Runnable task, long delay) {
+    public final int scheduleSyncDelayedTask(Runnable task, long delay) {
         return Bukkit.getScheduler().scheduleSyncDelayedTask(this, task, delay);
     }
 
-    public int scheduleSyncDelayedTask(Runnable task) {
+    public final int scheduleSyncDelayedTask(Runnable task) {
         return Bukkit.getScheduler().scheduleSyncDelayedTask(this, task);
     }
 
-    public void runTaskAsync(Runnable task, long delay) {
+    public final void runTaskAsync(Runnable task, long delay) {
         Bukkit.getScheduler().runTaskLaterAsynchronously(this, task, delay);
     }
 
-    public void runTaskAsync(Runnable task) {
+    public final void runTaskAsync(Runnable task) {
         Bukkit.getScheduler().runTaskAsynchronously(this, task);
     }
 
-    public NamespacedKey namespacedKey(@NotNull String key) {
+    public final NamespacedKey namespacedKey(@NotNull String key) {
         return new NamespacedKey(this, key);
     }
 
-    public <DBType> void registerConfig(AppleConfig<DBType> config) {
+    public final File getRootFile(String... children) {
+        File folder = getDataFolder();
+        folder.mkdirs();
+        return FileFormatting.fileWithChildren(folder, children);
+    }
+
+    public final <DBType> void registerConfig(AppleConfig<DBType> config) {
         AppleConfigsDatabase.get().registerConfig(config);
     }
 }

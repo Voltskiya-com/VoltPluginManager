@@ -1,8 +1,7 @@
 package com.voltskiya.lib.configs.data.config;
 
-import apple.utilities.database.ajd.AppleAJD;
-import apple.utilities.database.ajd.AppleAJDInst;
-import apple.utilities.threading.service.queue.TaskHandlerQueue;
+import apple.utilities.database.concurrent.ConcurrentAJD;
+import apple.utilities.database.concurrent.inst.ConcurrentAJDInst;
 import apple.utilities.util.FileFormatting;
 import com.google.gson.Gson;
 import com.voltskiya.lib.configs.data.config.init.IAppleConfigInit;
@@ -15,46 +14,43 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.function.Consumer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class AppleConfig<DBType> implements ReflectionsParseClassUtil {
 
-    private static final TaskHandlerQueue taskHandler = new TaskHandlerQueue(10, 0, 0);
+    private static final ExecutorService EXECUTOR = Executors.newCachedThreadPool();
     private final AppleConfigModule module;
     private final Class<DBType> dbType;
-    private final String name;
-    private AppleAJDInst<DBType> database;
-    private String[] path;
-    private String extension;
+    private final AppleConfigPath path;
+    private ConcurrentAJDInst<DBType> database;
 
     public AppleConfig(String name, AppleConfigModule module, Class<DBType> dbType) {
-        this.name = name;
+        this.path = new AppleConfigPath(name);
         this.module = module;
         this.dbType = dbType;
     }
 
     public DBType getInstance() {
-        return database.getInstance();
+        return database.getValue();
     }
 
-    public void build(SerializingProp serializing, AppleConfigProps props) {
-        this.path = props.path();
-        this.extension = serializing.extension();
-        this.database = AppleAJD.createInst(this.dbType, this.getFile(),
-            taskHandler.taskCreator());
+    private void build(SerializingProp serializing, AppleConfigProps props) {
+        this.path.setPath(props.path(), serializing.extension());
+        this.database = ConcurrentAJD.createInst(this.dbType, this.getFile(), EXECUTOR);
         serializing.handleDatabase(database);
-        DBType inst = this.database.loadOrMake(false);
+        DBType inst = this.database.loadNow();
         if (inst instanceof IAppleConfigInit init) {
             init.setManager(this);
+            init.onInitConfig();
         }
     }
 
-    private File getFile() {
-        File rootFolder = this.module.getDataFolder();
-        File folder = FileFormatting.folderWithChildren(rootFolder, this.path);
-        return new File(folder, name + extension);
+    public File getFile() {
+        return this.path.getFile(this.module.getDataFolder());
     }
 
     public void save() {
@@ -70,23 +66,23 @@ public class AppleConfig<DBType> implements ReflectionsParseClassUtil {
     }
 
     public String getName() {
-        return this.name;
+        return this.path.name();
     }
 
     public AppleConfigPath getFullName() {
-        return new AppleConfigPath(this.name, this.path);
+        return this.path;
     }
 
     public List<String> iteratePath() {
-        ArrayList<String> iteratePath = new ArrayList<>(List.of(this.path));
-        iteratePath.add(name);
+        ArrayList<String> iteratePath = new ArrayList<>(List.of(this.path.path()));
+        iteratePath.add(this.path.name());
         return iteratePath;
     }
 
     @Nullable
     public List<String> autoCompleteFields(String[] fieldPath) {
         @NotNull Class<?> innerClass = this.dbType;
-        @Nullable Object innerObj = this.database.getInstance();
+        @Nullable Object innerObj = this.database.getValue();
         for (int i = 0; i < fieldPath.length; i++) {
             if (fieldPath[i].isBlank())
                 continue;
@@ -112,7 +108,7 @@ public class AppleConfig<DBType> implements ReflectionsParseClassUtil {
             return false;
         @NotNull Class<?> innerClass = this.dbType;
         @Nullable Field innerField = getFieldByName(fieldPath[0], innerClass);
-        @Nullable Object innerObj = this.database.getInstance();
+        @Nullable Object innerObj = this.database.getValue();
         for (int i = 1; i < fieldPath.length; i++) {
             if (innerObj == null || innerField == null)
                 return false;
@@ -145,15 +141,15 @@ public class AppleConfig<DBType> implements ReflectionsParseClassUtil {
         return new Gson().toJson(currentObj);
     }
 
-    private record SerializingProp(Consumer<AppleAJDInst<?>> handleDatabase,
+    private record SerializingProp(Consumer<ConcurrentAJDInst<?>> handleDatabase,
                                    String extension) {
 
-        private SerializingProp(Consumer<AppleAJDInst<?>> handleDatabase, String extension) {
+        private SerializingProp(Consumer<ConcurrentAJDInst<?>> handleDatabase, String extension) {
             this.handleDatabase = handleDatabase;
             this.extension = "." + extension;
         }
 
-        public <DBType> void handleDatabase(AppleAJDInst<DBType> database) {
+        public <DBType> void handleDatabase(ConcurrentAJDInst<DBType> database) {
             this.handleDatabase.accept(database);
         }
     }
@@ -162,13 +158,12 @@ public class AppleConfig<DBType> implements ReflectionsParseClassUtil {
 
         private final AppleConfig<DBType> built;
         private final AppleConfigProps props;
-        private SerializingProp serializing = new SerializingProp(AppleAJD::setSerializingJson,
+        private SerializingProp serializing = new SerializingProp(db -> {},
             FileFormatting.JSON_EXTENSION);
 
         public Builder(String name, AppleConfigModule module, Class<DBType> dbType, String[] path) {
             this.props = new AppleConfigProps(path);
             this.built = new AppleConfig<>(name, module, dbType);
-            asJson();
         }
 
 
@@ -184,20 +179,14 @@ public class AppleConfig<DBType> implements ReflectionsParseClassUtil {
         }
 
         public Builder<DBType> asJson() {
-            this.serializing = new SerializingProp(AppleAJD::setSerializingJson,
+            this.serializing = new SerializingProp(db -> db.serializing().asGson(new Gson()),
                 FileFormatting.JSON_EXTENSION);
             return this;
         }
 
         public Builder<DBType> asJson(Gson gson) {
-            Consumer<AppleAJDInst<?>> modifier = db -> db.setSerializingJson(gson);
+            Consumer<ConcurrentAJDInst<?>> modifier = db -> db.serializing().asGson(gson);
             this.serializing = new SerializingProp(modifier, FileFormatting.JSON_EXTENSION);
-            return this;
-        }
-
-        public Builder<DBType> asYaml() {
-            this.serializing = new SerializingProp(AppleAJD::setSerializingYaml,
-                FileFormatting.YML_EXTENSION);
             return this;
         }
 

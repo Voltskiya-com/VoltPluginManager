@@ -19,7 +19,7 @@ public abstract class AbstractModule implements AppleConfigModule {
 
     public final void _init(AbstractVoltPlugin parent) {
         this.parent = parent;
-        // i still want this to work better than it does
+        // I still want this to work better than it does
         this.logger = LoggerFactory.getLogger(parent.getName() + "] [" + this.getName());
         this.registerConfigs();
     }
@@ -37,26 +37,27 @@ public abstract class AbstractModule implements AppleConfigModule {
     public final void onDisable_() {
         if (this.taskManager != null) this.taskManager.onDisable();
         this.onDisable();
+        this.setEnabled(false);
     }
 
     public void onDisable() {
     }
 
 
-    public Logger logger() {
+    public final Logger logger() {
         return this.logger;
     }
 
-    public void doEnable() {
-        this.enabled = true;
+    public final void onEnable_() {
+        this.setEnabled(true);
         enable();
     }
 
+    @Override
     public File getDataFolder() {
         if (this.dataFolder == null) {
             this.dataFolder = new File(parent.getDataFolder(), getName());
-            if (!this.dataFolder.exists())
-                this.dataFolder.mkdirs();
+            this.dataFolder.mkdirs();
         }
         return this.dataFolder;
     }
@@ -75,19 +76,19 @@ public abstract class AbstractModule implements AppleConfigModule {
 
     public abstract String getName();
 
-    public AbstractVoltPlugin getPlugin() {
+    public final AbstractVoltPlugin getPlugin() {
         return parent;
     }
 
-    public AbstractModule getModule() {
+    public final AbstractModule getModule() {
         return this;
     }
 
-    public boolean isEnabled() {
+    public final boolean isEnabled() {
         return enabled;
     }
 
-    public void setEnabled(boolean enabled) {
+    private void setEnabled(boolean enabled) {
         this.enabled = enabled;
     }
 }
